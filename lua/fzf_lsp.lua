@@ -6,7 +6,7 @@ local M = {}
 local __file = debug.getinfo(1, "S").source:match("@(.*)$")
 assert(__file ~= nil)
 local bin_dir = fn.fnamemodify(__file, ":p:h:h") .. "/bin"
-local bin = { preview = (bin_dir .. "/preview.sh") }
+local bin = { preview = (bin_dir .. '/' .. vim.env.FZF_PREVIEW_COMMAND) }
 -- }}}
 
 -- utility functions {{{
@@ -333,8 +333,8 @@ end
 
 local function fzf_locations(bang, prompt, header, source, infile)
   local preview_cmd = (infile and
-    (bin.preview .. " " .. fn.expand("%") .. ":{}") or
-    (bin.preview .. " {}")
+    ('for /f "delims=: tokens=1" %L in ({}) do @(IF %L GEQ 10 (set /a "pre=%L-10">nul) ELSE (set "pre=0"))&&@cmd /a /q /s /v:on /c "' .. bin.preview .. ' --line-range %pre%: --highlight-line %L ' .. fn.expand("%") .. '"')  or
+    ('for /f "delims=: tokens=1,2" %L in ({}) do @(IF %M GEQ 10 (set /a "pre=%M-10">nul) ELSE (set "pre=0"))&&@cmd /a /q /s /v:on /c "' .. bin.preview .. ' --line-range %pre%: --highlight-line %M %L"')
   )
   local options = {
     "--prompt", prompt .. ">",
